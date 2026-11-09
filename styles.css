@@ -268,3 +268,7 @@ dialog.sheet[open] { overflow: hidden; }
 .player-head .chip[aria-pressed="true"] { background: var(--brand); border-color: var(--brand); color: #fff; font-weight: 700; }
 label.check { display: flex; align-items: center; gap: .5rem; min-height: 44px; margin-top: .5rem; }
 label.check input { width: 1.3rem; height: 1.3rem; }
+
+.deal-table { border-collapse: collapse; margin: 0 0 1em; }
+.deal-table th, .deal-table td { border: 1px solid currentColor; padding: 4px 10px; text-align: center; }
+.deal-table th { font-weight: 600; }

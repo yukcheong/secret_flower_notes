@@ -415,7 +415,10 @@ function showRules() {
       sec.body.map((t) => h('p', {}, t)),
       (sec.tables || []).map((t) => h('div', {},
         h('p', {}, h('strong', {}, t.caption)),
-        h('ul', {}, t.rows.map((r) => h('li', {}, `${r.n} players — hidden ${r.hidden}; question ${r.question}`))))),
+        h('table', { class: 'deal-table' },
+          h('thead', {}, h('tr', {}, ['Players', 'Hidden', 'Question'].map((c) => h('th', {}, c)))),
+          h('tbody', {}, t.rows.map((r) => h('tr', {},
+            h('td', {}, String(r.n)), h('td', {}, String(r.hidden)), h('td', {}, String(r.question)))))))),
     ));
   if (nb) body.unshift(h('p', { class: 'hint' }, `This game: ${nb.playerCount} players, ${DIFF_LABEL[nb.difficulty]}. ${winCondition(nb.playerCount, nb.difficulty)}`));
   showInfo({ title: 'Rules reminders', body });

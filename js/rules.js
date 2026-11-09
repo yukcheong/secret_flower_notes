@@ -39,7 +39,6 @@ export function rulesSections() {
       body: [
         'Never reveal what your own Hidden cards are. Public information may be discussed.',
         'If you think you have deduced a card, consult the other players before revealing it.',
-        'Use “Known privately”, “My deduction” and “Revealed at the table” in the card editor to keep these apart.',
       ],
       src: 'p6',
     },
