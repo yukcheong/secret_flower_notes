@@ -146,6 +146,12 @@ function flowerGrid(container, marks, onTap, exact = null) {
     h('div', { class: 'flower-cells' }, cells),
   );
 }
+// Flowers crossed out in Secret Flower candidates show as crossed out on every hidden card.
+function slotView(s, slot) {
+  const m = { ...slot.marks };
+  for (const [n, v] of Object.entries(s.flowers)) if (v === 'x') m[n] = 'x';
+  return m;
+}
 function slotLabel(slot, total) {
   if (total === 1) return 'Card 1 (only)';
   if (slot.position === 1) return 'Card 1 (lowest)';
@@ -194,7 +200,8 @@ function render() {
       ),
       h('p', { class: 'dir' }, p.slots.length > 1 ? `${p.name}'s left → right` : ''),
       h('div', { class: 'slots' }, p.slots.map((sl) => {
-        const sus = Object.keys(sl.marks).filter((k) => sl.marks[k] === 's').map(Number).sort((a, b) => a - b);
+        const vm = slotView(s, sl);
+        const sus = Object.keys(vm).filter((k) => vm[k] === 's').map(Number).sort((a, b) => a - b);
         const val = sl.exact ? String(sl.exact) : sus.length ? sus.join(' / ') : '?';
         const meta = sl.note ? sl.note.slice(0, 60) : '';
         const valDesc = sl.exact ? `, exactly ${sl.exact}` : sus.length ? `, suspected ${sus.join(', ')}` : '';
@@ -269,7 +276,7 @@ function renderSlotDialog() {
   const { player, slot } = f;
   $('#slot-title').textContent = `${player.name} · ${slotLabel(slot, player.slots.length)}`;
   $('#slot-sub').textContent = `${player.slots.length} hidden card${player.slots.length > 1 ? 's' : ''}, lowest → highest from ${player.name}'s left to right. Marks here only affect this card.`;
-  flowerGrid($('#slot-grid'), slot.marks, (n) => act({ type: 'markSlot', slotId: slot.id, n, tool: 's' }), slot.exact);
+  flowerGrid($('#slot-grid'), slotView(s, slot), (n) => { if (s.flowers[n] !== 'x') act({ type: 'markSlot', slotId: slot.id, n, tool: 's' }); }, slot.exact);
   const ex = $('#slot-exact');
   if (ex.options.length === 1) for (let n = 1; n <= 16; n++) ex.append(h('option', { value: n }, n));
   ex.value = slot.exact ? String(slot.exact) : '';
