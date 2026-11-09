@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+  <meta name="theme-color" content="#2f5d46">
+  <meta name="description" content="A private, offline note-taking companion for The Secret Flower board game.">
+  <title>Secret Flower Notebook</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="assets/icon-192.png">
+  <link rel="apple-touch-icon" href="assets/icon-192.png">
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="js/app.js"></script>
+</head>
+<body class="playing">
+  <noscript><p class="noscript">This notebook needs JavaScript enabled.</p></noscript>
+
+  <header class="topbar">
+    <h1 class="title">Secret Flower <span>Notebook</span></h1>
+    <span id="save-status" class="save-status" role="status" aria-live="polite"></span>
+    <div class="topbar-actions" id="topbar-actions">
+      <button type="button" class="icon-btn" id="btn-undo" aria-label="Undo" title="Undo" disabled>↶</button>
+      <button type="button" class="icon-btn" id="btn-redo" aria-label="Redo" title="Redo" disabled>↷</button>
+      <button type="button" class="icon-btn" id="btn-hide" aria-label="Hide notes" title="Hide notes">◉</button>
+      <button type="button" class="icon-btn" id="btn-more" aria-label="More options" title="More">⋯</button>
+    </div>
+  </header>
+
+  <div id="banner" class="banner" role="alert" hidden></div>
+
+  <main id="app" class="playing">
+
+    <!-- Flowers -->
+    <section id="view-flowers" class="view" hidden aria-labelledby="flowers-h">
+      <div class="view-head">
+        <h2 id="flowers-h">Secret Flower candidates</h2>
+        <p class="count" id="flower-count"></p>
+      </div>
+      <p class="hint">Tap a flower to cross it out; tap again to restore it.</p>
+      <div class="flower-grid" id="flower-grid" role="group" aria-label="Flowers 1 to 16"></div>
+      <p class="hint">Unmarked = still possible. Marks are yours only; nothing is deduced automatically.</p>
+    </section>
+
+    <!-- Players -->
+    <section id="view-players" class="view" hidden aria-labelledby="players-h">
+      <div class="view-head">
+        <h2 id="players-h">Players' hidden cards</h2>
+        <p class="hint">Positions run lowest → highest from the <strong>owner's</strong> left to right.</p>
+      </div>
+      <ul class="player-list" id="player-list"></ul>
+    </section>
+
+    <!-- Notes -->
+    <section id="view-notes" class="view" hidden aria-labelledby="notes-h">
+      <h2 id="notes-h">Notes</h2>
+      <label class="field">
+        <span>General notes</span>
+        <textarea id="general-notes" rows="14" placeholder="Anything worth remembering…"></textarea>
+      </label>
+    </section>
+  </main>
+
+  <nav class="tabs" id="tabs" aria-label="Sections">
+    <button type="button" data-tab="flowers" aria-current="page"><span aria-hidden="true">✿</span>Flowers</button>
+    <button type="button" data-tab="players"><span aria-hidden="true">☺</span>Players</button>
+    <button type="button" data-tab="notes"><span aria-hidden="true">✎</span>Notes</button>
+  </nav>
+
+  <!-- Privacy cover -->
+  <div id="cover" class="cover" hidden>
+    <button type="button" id="btn-unhide" class="btn primary">Show my notes</button>
+    <p>Notes hidden from view. This is a screen cover, not encryption.</p>
+  </div>
+
+  <!-- Slot editor -->
+  <dialog id="slot-dialog" class="sheet" aria-labelledby="slot-title">
+    <form method="dialog" class="sheet-inner">
+      <header class="sheet-head">
+        <h2 id="slot-title"></h2>
+        <button value="close" class="btn">Done</button>
+      </header>
+      <div class="sheet-body">
+        <p class="hint" id="slot-sub"></p>
+        <p class="hint">Tap a flower to mark it as suspected; tap again to unmark.</p>
+        <div class="flower-grid mini" id="slot-grid" role="group" aria-label="Suspects for this card"></div>
+        <label class="field"><span>Exact number (if known)</span>
+          <select id="slot-exact"><option value="">— not set —</option></select>
+        </label>
+        <label class="field"><span>Card note</span>
+          <textarea id="slot-note" rows="3" placeholder="e.g. range 13–16"></textarea>
+        </label>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- More menu -->
+  <dialog id="more-dialog" class="sheet" aria-labelledby="more-title">
+    <form method="dialog" class="sheet-inner">
+      <header class="sheet-head">
+        <h2 id="more-title">Menu</h2>
+        <button value="close" class="btn">Close</button>
+      </header>
+      <div class="sheet-body">
+        <p class="hint" id="offline-status"></p>
+        <div class="menu">
+          <button type="button" class="btn wide" id="btn-rules">Rules reminders</button>
+          <button type="button" class="btn wide" id="btn-export">Export backup (.json)</button>
+          <label class="btn wide file-btn">Import backup…<input type="file" id="file-import" accept="application/json,.json"></label>
+          <button type="button" class="btn wide" id="btn-rename">Rename players</button>
+          <button type="button" class="btn wide danger" id="btn-new">New game…</button>
+        </div>
+        <p class="fineprint">Saved in this browser on this device. Not synced. Clearing browser data or private browsing can lose notes — export a backup to keep or move them. Notes are not encrypted.</p>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Generic confirm / content dialog -->
+  <dialog id="info-dialog" class="sheet" aria-labelledby="info-title">
+    <form method="dialog" class="sheet-inner">
+      <header class="sheet-head">
+        <h2 id="info-title"></h2>
+        <button value="cancel" class="btn" id="info-close">Close</button>
+      </header>
+      <div class="sheet-body" id="info-body"></div>
+      <footer class="sheet-foot" id="info-foot"></footer>
+    </form>
+  </dialog>
+</body>
+</html>
