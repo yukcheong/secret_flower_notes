@@ -29,13 +29,13 @@ test('flower marking toggles and clears', () => {
   assert.equal(s.flowers[6], undefined);
 });
 
-test('slot marks are manual and never propagate to flowers or other slots', () => {
+test('slot marks never propagate; only an exact number crosses out its candidate', () => {
   let s = base();
   const slot = s.players[1].slots[0];
   s = apply(s, { type: 'markSlot', slotId: slot.id, n: 14, tool: 'x' });
   s = apply(s, { type: 'setSlot', slotId: slot.id, field: 'exact', value: 9 });
   assert.equal(findSlot(s, slot.id).slot.marks[14], 'x');
-  assert.deepEqual(s.flowers, {});
+  assert.deepEqual(s.flowers, { 9: 'x' });
   assert.deepEqual(s.players[1].slots[1].marks, {});
 });
 
@@ -114,4 +114,20 @@ test('setStart re-rotates card counts and keeps existing card data; setOwner cha
   s = apply(s, { type: 'setOwner', playerId: s.players[3].id });
   assert.equal(s.ownerId, s.players[3].id);
   assert.throws(() => apply(s, { type: 'setOwner', playerId: 'nope' }));
+});
+
+test('exact number crosses out candidate; un-crossing unsets exact', () => {
+  let s = base();
+  const a = s.players[0].slots[0].id, b = s.players[1].slots[0].id;
+  s = apply(s, { type: 'setSlot', slotId: a, field: 'exact', value: '7' });
+  assert.equal(s.flowers[7], 'x');
+  s = apply(s, { type: 'setSlot', slotId: a, field: 'exact', value: '9' });
+  assert.equal(s.flowers[7], undefined);
+  assert.equal(s.flowers[9], 'x');
+  s = apply(s, { type: 'setSlot', slotId: b, field: 'exact', value: '9' });
+  s = apply(s, { type: 'setSlot', slotId: a, field: 'exact', value: null });
+  assert.equal(s.flowers[9], 'x'); // still claimed by b
+  s = apply(s, { type: 'markFlower', n: 9, tool: 'x' }); // undo cross in candidates
+  assert.equal(s.flowers[9], undefined);
+  assert.equal(findSlot(s, b).slot.exact, null);
 });

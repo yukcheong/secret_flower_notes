@@ -65,6 +65,10 @@ export function apply(state, action) {
   switch (action.type) {
     case 'markFlower':
       toggleMark(s.flowers, action.n, action.tool);
+      // Un-crossing a candidate un-sets any card's exact number that pointed at it.
+      if (s.flowers[action.n] !== 'x') {
+        for (const p of s.players) for (const sl of p.slots) if (sl.exact === action.n) sl.exact = null;
+      }
       break;
     case 'markSlot': {
       const f = findSlot(s, action.slotId);
@@ -77,7 +81,17 @@ export function apply(state, action) {
       if (!f) throw new Error('No such slot');
       const { field, value } = action;
       if (field === 'note') f.slot.note = String(value).slice(0, 5000);
-      else if (field === 'exact') f.slot.exact = value == null || value === '' ? null : Number(value);
+      else if (field === 'exact') {
+        const prev = f.slot.exact;
+        const next = value == null || value === '' ? null : Number(value);
+        if (next !== null && !(Number.isInteger(next) && next >= 1 && next <= 16)) throw new Error('Bad flower number');
+        f.slot.exact = next;
+        // A card's exact number can't be the Secret Flower: cross it out of the candidates.
+        if (next !== null) s.flowers[next] = 'x';
+        // Clearing/changing the exact number restores the old candidate, unless another card still claims it.
+        if (prev !== null && prev !== next && s.flowers[prev] === 'x' &&
+            !s.players.some((p) => p.slots.some((sl) => sl.exact === prev))) delete s.flowers[prev];
+      }
       else if (field === 'status' && SLOT_STATUSES.includes(value)) f.slot.status = value;
       else throw new Error('Bad slot field');
       break;

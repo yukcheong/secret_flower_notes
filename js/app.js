@@ -150,6 +150,8 @@ function flowerGrid(container, marks, onTap, exact = null) {
 function slotView(s, slot) {
   const m = { ...slot.marks };
   for (const [n, v] of Object.entries(s.flowers)) if (v === 'x') m[n] = 'x';
+  // The card's own exact number is crossed in candidates, but on this card it's the answer, not a cross.
+  if (slot.exact && m[slot.exact] === 'x' && slot.marks[slot.exact] !== 'x') delete m[slot.exact];
   return m;
 }
 function slotLabel(slot, total) {
