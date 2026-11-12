@@ -280,7 +280,13 @@ function renderSlotDialog() {
   $('#slot-sub').textContent = `${player.slots.length} hidden card${player.slots.length > 1 ? 's' : ''}, lowest → highest from ${player.name}'s left to right. Marks here only affect this card.`;
   flowerGrid($('#slot-grid'), slotView(s, slot), (n) => { if (s.flowers[n] !== 'x') act({ type: 'markSlot', slotId: slot.id, n, tool: 's' }); }, slot.exact);
   const ex = $('#slot-exact');
-  if (ex.options.length === 1) for (let n = 1; n <= 16; n++) ex.append(h('option', { value: n }, n));
+  // Only offer numbers still possible in Secret Flower candidates (plus this card's own exact,
+  // which setting it crosses out of the candidates).
+  ex.replaceChildren(h('option', { value: '' }, '— not set —'));
+  for (let n = 1; n <= 16; n++) {
+    if (s.flowers[n] === 'x' && slot.exact !== n) continue;
+    ex.append(h('option', { value: n }, n));
+  }
   ex.value = slot.exact ? String(slot.exact) : '';
   setValueIfIdle($('#slot-note'), slot.note);
 }

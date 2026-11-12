@@ -1,5 +1,5 @@
 // Offline cache for the app shell. Bump VERSION when any shell file changes.
-const VERSION = 'sf-notebook-v18';
+const VERSION = 'sf-notebook-v20';
 const SHELL = [
   './',
   'index.html',
